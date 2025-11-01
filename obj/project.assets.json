@@ -1,0 +1,110 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "Backdash/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/Backdash.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Backdash.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Backdash/1.0.0": {
+      "sha512": "dT/J77XeEKj+iqVMbaSEa367mb7aZrDqYN/pip0wSM7BHYlww+JSJXcGjOTjQvBI/zqlO+XGMnuZ96VM568vxw==",
+      "type": "package",
+      "path": "backdash/1.0.0",
+      "files": [
+        ".nupkg.metadata",
+        "README.md",
+        "backdash.1.0.0.nupkg.sha512",
+        "backdash.nuspec",
+        "lib/net8.0/Backdash.dll",
+        "lib/net8.0/Backdash.pdb",
+        "lib/net8.0/Backdash.xml",
+        "logo.png"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "Backdash >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/home/gee/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/home/gee/Projects/BackdashDaemon/BackdashDaemon.csproj",
+      "projectName": "BackdashDaemon",
+      "projectPath": "/home/gee/Projects/BackdashDaemon/BackdashDaemon.csproj",
+      "packagesPath": "/home/gee/.nuget/packages/",
+      "outputPath": "/home/gee/Projects/BackdashDaemon/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/home/gee/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "dependencies": {
+          "Backdash": {
+            "target": "Package",
+            "version": "[1.0.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.20, 8.0.20]"
+          }
+        ],
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.120/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

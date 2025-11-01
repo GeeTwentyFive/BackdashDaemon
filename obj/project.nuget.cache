@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "hHq/Zvq2eEJFbh6qFV5f1My4fE0e+sCA8ZwuuCT0Fy/eHVFE5qAbiDgyT/fVOTgfpTWCDFLoWjW00az49EyiWw==",
+  "success": true,
+  "projectFilePath": "/home/gee/Projects/BackdashDaemon/BackdashDaemon.csproj",
+  "expectedPackageFiles": [
+    "/home/gee/.nuget/packages/backdash/1.0.0/backdash.1.0.0.nupkg.sha512",
+    "/home/gee/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.20/microsoft.aspnetcore.app.ref.8.0.20.nupkg.sha512"
+  ],
+  "logs": []
+}
