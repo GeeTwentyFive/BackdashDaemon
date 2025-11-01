@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Backdash" Version="1.0.0" />
+    <PackageReference Include="ENet-CSharp" Version="2.4.8" />
   </ItemGroup>
 
 </Project>

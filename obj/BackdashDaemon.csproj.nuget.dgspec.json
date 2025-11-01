@@ -41,6 +41,10 @@
             "Backdash": {
               "target": "Package",
               "version": "[1.0.0, )"
+            },
+            "ENet-CSharp": {
+              "target": "Package",
+              "version": "[2.4.8, )"
             }
           },
           "imports": [
