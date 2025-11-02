@@ -55,7 +55,7 @@ public static class BackdashDaemon
                 // [DONE] IN = uint32 local player input data
 
                 SYNC_INPUTS = 4,
-                // OUT = uint32[] synchronized input data (for *all* players)
+                // [DONE] OUT = uint32[] synchronized input data (for *all* players)
 
                 FRAME_BEGIN = 5
                 // [DONE] IN = backdash begin frame
@@ -210,6 +210,12 @@ public static class BackdashDaemon
                                         case EventType.Disconnect:
                                                 return 0;
                                 }
+                        }
+
+                        if (SynchronizeInputs() != 0)
+                        {
+                                Console.WriteLine("ERROR: Failed to synchronize inputs");
+                                return 1;
                         }
 
                         server.Flush();
