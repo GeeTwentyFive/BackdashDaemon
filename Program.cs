@@ -1,6 +1,7 @@
 ﻿using ENet;
 using Backdash;
 using System.Net.Security;
+using System.Runtime.InteropServices;
 
 
 public static class BackdashDaemon
@@ -34,6 +35,11 @@ public static class BackdashDaemon
         static Host server = new Host();
         static Packet tick_request_packet = default(Packet);
         static Packet save_game_request_packet = default(Packet);
+
+        public static void HandleReceive(byte[] data)
+        {
+                // TODO
+        }
 
         public static int Main(string[] args)
         {
@@ -83,7 +89,9 @@ public static class BackdashDaemon
                                                 break;
 
                                         case EventType.Receive:
-                                                // TODO
+                                                byte[] packet_data = new byte[netEvent.Packet.Length];
+                                                netEvent.Packet.CopyTo(packet_data);
+                                                HandleReceive(packet_data);
                                                 break;
 
                                         case EventType.Disconnect:
