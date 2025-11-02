@@ -25,8 +25,12 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 
         public void LoadState(in Frame frame, ref readonly BinaryBufferReader reader)
         {
+                byte[] game_state_data = reader.Buffer.ToArray();
+                byte[] load_game_request_packet_data = new byte[1 + game_state_data.Length];
+                load_game_request_packet_data[0] = (byte)BackdashDaemon.PacketType.LOAD_GAME;
+                Array.Copy(game_state_data, 0, load_game_request_packet_data, 1, game_state_data.Length);
                 Packet load_game_request_packet = default(Packet);
-                load_game_request_packet.Create(reader.Buffer.ToArray());
+                load_game_request_packet.Create(load_game_request_packet_data);
                 BackdashDaemon.server.Broadcast(0, ref load_game_request_packet);
         }
 
