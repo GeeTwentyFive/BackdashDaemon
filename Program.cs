@@ -150,7 +150,7 @@ public static class BackdashDaemon
         {
                 if (args.Length < 3)
                 {
-                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <PLAYER_INPUT_STRUCTURE_SIZE> <REMOTE_PLAYER_2_IPv6> [REMOTE_PLAYER_3_IPv6] [REMOTE_PLAYER_4_IPv6]");
+                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <REMOTE_PLAYER_2_IPv6> [REMOTE_PLAYER_3_IPv6] [REMOTE_PLAYER_4_IPv6]");
                         return 1;
                 }
 
@@ -229,6 +229,7 @@ public static class BackdashDaemon
                                                 break;
 
                                         case EventType.Disconnect:
+                                                server.Dispose();
                                                 return 0;
                                 }
                         }
