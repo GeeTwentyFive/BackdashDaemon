@@ -132,6 +132,8 @@ public static class BackdashDaemon
                         })
                         .Build();
 
+                session.SetHandler(new BackdashSessionHandler());
+
                 session.AddPlayer(NetcodePlayer.CreateLocal());
                 for (int i = 1; i < player_count; i++)
                 {
