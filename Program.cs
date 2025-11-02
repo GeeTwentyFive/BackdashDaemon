@@ -54,36 +54,39 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 
                 // Wait for receive (partial copy of main loop)
                 Event netEvent;
-                while (BackdashDaemon.server.Service(0, out netEvent) > 0)
+                while (true)
                 {
-                        switch (netEvent.Type)
+                        while (BackdashDaemon.server.Service(0, out netEvent) > 0)
                         {
-                                case EventType.Receive:
-                                        byte[] packet_data = new byte[netEvent.Packet.Length];
-                                        netEvent.Packet.CopyTo(packet_data);
-                                        if (packet_data[0] == (byte)BackdashDaemon.PacketType.SAVE_GAME)
-                                        {
-                                                writer.Write(packet_data);
-                                                return;
-                                        }
-                                        else BackdashDaemon.HandleReceive(packet_data);
-                                        break;
+                                switch (netEvent.Type)
+                                {
+                                        case EventType.Receive:
+                                                byte[] packet_data = new byte[netEvent.Packet.Length];
+                                                netEvent.Packet.CopyTo(packet_data);
+                                                if (packet_data[0] == (byte)BackdashDaemon.PacketType.SAVE_GAME)
+                                                {
+                                                        writer.Write(packet_data);
+                                                        return;
+                                                }
+                                                else BackdashDaemon.HandleReceive(packet_data);
+                                                break;
 
-                                case EventType.Disconnect:
-                                        BackdashDaemon.server.Dispose();
-                                        Environment.Exit(0);
-                                        break;
+                                        case EventType.Disconnect:
+                                                BackdashDaemon.server.Dispose();
+                                                Environment.Exit(0);
+                                                break;
+                                }
                         }
-                }
 
-                if (BackdashDaemon.SynchronizeInputs() != 0)
-                {
-                        Console.WriteLine("ERROR: Failed to synchronize inputs");
-                        BackdashDaemon.server.Dispose();
-                        Environment.Exit(1);
-                }
+                        if (BackdashDaemon.SynchronizeInputs() != 0)
+                        {
+                                Console.WriteLine("ERROR: Failed to synchronize inputs");
+                                BackdashDaemon.server.Dispose();
+                                Environment.Exit(1);
+                        }
 
-                BackdashDaemon.server.Flush();
+                        BackdashDaemon.server.Flush();
+                }
         }
 
         public void TimeSync(FrameSpan framesAhead) {}
