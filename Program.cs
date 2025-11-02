@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Microsoft.VisualBasic;
 using System.Net;
 using Backdash.Serialization;
+using Backdash.Data;
 
 
 public class BackdashSessionHandler : INetcodeSessionHandler
@@ -63,7 +64,6 @@ public static class BackdashDaemon
 
         static int player_count = 0;
         static IPAddress[] remote_player_ips = new IPAddress[MAX_PLAYERS];
-        static byte[][] player_inputs = new byte[MAX_PLAYERS][];
         static uint[] player_inputs_packet_data = new uint[MAX_PLAYERS];
 
         static Host server = new Host();
@@ -71,6 +71,7 @@ public static class BackdashDaemon
         static Packet save_game_request_packet = default(Packet);
 
         static INetcodeSession<uint>? session;
+        static NetcodePlayer local_player = NetcodePlayer.CreateLocal();
 
         public static void HandleReceive(byte[] data)
         {
@@ -82,7 +83,8 @@ public static class BackdashDaemon
                                 break;
 
                         case (byte)PacketType.LOCAL_INPUT:
-                                player_inputs[LOCAL_PLAYER_ID] = data[1..];
+                                if (session == null) break;
+                                session.AddLocalInput(local_player, BitConverter.ToUInt32(data, 1));
                                 break;
 
                         case (byte)PacketType.TICK:
@@ -90,6 +92,24 @@ public static class BackdashDaemon
                                 session.AdvanceFrame();
                                 break;
                 }
+        }
+
+        public static int SynchronizeInputs()
+        {
+                if (session == null) return 1;
+
+                ResultCode result = session.SynchronizeInputs();
+                if (result != ResultCode.Ok)
+                {
+                        Console.WriteLine($"ERROR: Failed to synchronize inputs, with error code {result}");
+                        return 1;
+                }
+
+                //var ginputs = session.CurrentSynchronizedInputs;
+
+                //player_inputs_packet_data[1..] = 4;
+
+                return 0;
         }
 
         public static int Main(string[] args)
@@ -154,7 +174,7 @@ public static class BackdashDaemon
 
                 session.SetHandler(new BackdashSessionHandler());
 
-                session.AddPlayer(NetcodePlayer.CreateLocal());
+                session.AddPlayer(local_player);
                 for (int i = 1; i < player_count; i++)
                 {
                         session.AddPlayer(NetcodePlayer.CreateRemote(remote_player_ips[i], port));
