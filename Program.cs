@@ -1,27 +1,39 @@
-﻿using Backdash;
-using ENet;
+﻿using ENet;
+using Backdash;
+using System.Net.Security;
 
 
-class BackdashDaemon
+public static class BackdashDaemon
 {
         const int LOCAL_PLAYER_ID = 0;
 
+
         public enum PacketType
         {
-                PACKET_TYPE_TICK = 0,
+                TICK = 0,
                 // OUT = synchronize inputs -> tick request
                 // IN = backdash advance frame
-                PACKET_TYPE_LOAD_GAME = 1,
+                LOAD_GAME = 1,
                 // OUT = load game state request + data
                 // IN = ^ confirmation
-                PACKET_TYPE_SAVE_GAME = 2,
+                SAVE_GAME = 2,
                 // OUT = save game request
                 // IN = (^ response) game state data
-                PACKET_TYPE_LOCAL_INPUT = 3,
+                LOCAL_INPUT = 3,
                 // IN = local player input data
-                PACKET_TYPE_SYNC_INPUTS = 4
+                SYNC_INPUTS = 4
                 // OUT = synchronized input data (for *all* players)
         }
+
+
+        static int player_count = 0;
+        static string[] remote_player_ips = { };
+        static List<List<byte>> player_inputs = new List<List<byte>>();
+        static List<byte> player_inputs_packet_data = new List<byte>();
+
+        static Host server = new Host();
+        static Packet tick_request_packet = default(Packet);
+        static Packet save_game_request_packet = default(Packet);
 
         public static int Main(string[] args)
         {
@@ -31,16 +43,39 @@ class BackdashDaemon
                         return 1;
                 }
 
-                int port;
-                if (!int.TryParse(args[1], out port))
+                ushort port;
+                if (!ushort.TryParse(args[1], out port))
                 {
                         Console.WriteLine($"ERROR: Provided port {args[1]} is invalid");
                         return 1;
                 }
 
-                int player_count = args.Length-2 + 1; // the "+ 1" is local player
+                player_count = args.Length - 2 + 1; // the "+ 1" is local player
 
-                //
+                for (int i = 2; i < player_count; i++)
+                {
+                        remote_player_ips.Append(args[i]);
+                }
+
+                while (player_inputs.Count < player_count)
+                {
+                        player_inputs.Add(new List<byte>());
+                }
+
+                player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
+
+                tick_request_packet.Create(new byte[] { (byte)PacketType.TICK });
+                save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
+
+                Address address = new Address();
+                address.Port = (ushort)(port+1);
+                server.Create(address, 1);
+
+                Event netEvent;
+                while (true)
+                {
+                        //
+                }
 
                 return 0;
         }
