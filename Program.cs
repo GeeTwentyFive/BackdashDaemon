@@ -55,7 +55,7 @@ public static class BackdashDaemon
         {
                 if (args.Length < 3)
                 {
-                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <REMOTE_PLAYER_2_IP> <REMOTE_PLAYER_3_IP> ...");
+                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <REMOTE_PLAYER_2_IP> [REMOTE_PLAYER_3_IP] [REMOTE_PLAYER_4_IP]");
                         return 1;
                 }
 
