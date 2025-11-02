@@ -266,6 +266,7 @@ public static class BackdashDaemon
 
                                         case EventType.Disconnect:
                                                 server.Dispose();
+                                                session.Dispose();
                                                 return 0;
                                 }
                         }
