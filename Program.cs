@@ -132,8 +132,8 @@ public static class BackdashDaemon
                 for (int i = 1; i < player_count + 1; i++)
                 {
                         BinaryPrimitives.WriteUInt32LittleEndian(
-                                player_inputs_packet_data.AsSpan(1 + (i - 1) * sizeof(uint)),
-                                session.CurrentSynchronizedInputs[i].Input
+                                player_inputs_packet_data.AsSpan(1 + (i-1)*sizeof(uint)),
+                                session.CurrentSynchronizedInputs[i-1].Input
                         );
                 }
                 Packet player_inputs_packet = default(Packet);
