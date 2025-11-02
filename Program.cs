@@ -12,17 +12,28 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 {
         public void AdvanceFrame()
         {
-                // TODO: Send request ^
+                if (BackdashDaemon.SynchronizeInputs() != 0)
+                {
+                        Console.WriteLine("ERROR: Failed to synchronize inputs");
+                        Environment.Exit(1);
+                }
+
+                Packet tick_request_packet = default(Packet);
+                tick_request_packet.Create(new byte[] { (byte)BackdashDaemon.PacketType.TICK });
+                BackdashDaemon.server.Broadcast(0, ref tick_request_packet);
         }
 
         public void LoadState(in Frame frame, ref readonly BinaryBufferReader reader)
         {
-                // TODO: Send request ^
+                Packet load_game_request_packet = default(Packet);
+                load_game_request_packet.Create(reader.Buffer.ToArray());
+                BackdashDaemon.server.Broadcast(0, ref load_game_request_packet);
         }
 
         public void SaveState(in Frame frame, ref readonly BinaryBufferWriter writer)
         {
                 // TODO: Send request ^
+                // save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
         }
 
         public void TimeSync(FrameSpan framesAhead) {}
@@ -33,19 +44,17 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 
 public static class BackdashDaemon
 {
-        const int LOCAL_PLAYER_ID = 0;
         const int MAX_PLAYERS = 4;
 
 
         public enum PacketType
         {
                 TICK = 0,
-                // OUT = synchronize inputs -> tick request
+                // [DONE] OUT = synchronize inputs -> tick request
                 // [DONE] IN = backdash advance frame
 
                 LOAD_GAME = 1,
-                // OUT = load game state request + data
-                // IN = ^ confirmation
+                // [DONE] OUT = load game state request + data
 
                 SAVE_GAME = 2,
                 // OUT = save game request
@@ -66,9 +75,7 @@ public static class BackdashDaemon
         static IPAddress[] remote_player_ips = new IPAddress[MAX_PLAYERS];
         static byte[] player_inputs_packet_data = new byte[1 + sizeof(uint)*MAX_PLAYERS];
 
-        static Host server = new Host();
-        static Packet tick_request_packet = default(Packet);
-        static Packet save_game_request_packet = default(Packet);
+        public static Host server = new Host();
 
         static INetcodeSession<uint>? session;
         static NetcodePlayer local_player = NetcodePlayer.CreateLocal();
@@ -156,9 +163,6 @@ public static class BackdashDaemon
                 }
 
                 player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
-
-                tick_request_packet.Create(new byte[] { (byte)PacketType.TICK });
-                save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
 
                 Address address = new Address();
                 address.Port = (ushort)(port + 1);
