@@ -3,6 +3,7 @@ using Backdash;
 using System.Net.Security;
 using System.Runtime.InteropServices;
 using Microsoft.VisualBasic;
+using System.Net;
 
 
 public static class BackdashDaemon
@@ -30,7 +31,7 @@ public static class BackdashDaemon
 
 
         static int player_count = 0;
-        static string[] remote_player_ips = new string[MAX_PLAYERS];
+        static IPAddress[] remote_player_ips = new IPAddress[MAX_PLAYERS];
         static byte[][] player_inputs = new byte[MAX_PLAYERS][];
         static uint[] player_inputs_packet_data = new uint[MAX_PLAYERS];
 
@@ -76,7 +77,13 @@ public static class BackdashDaemon
 
                 for (int i = 2; i < player_count; i++)
                 {
-                        remote_player_ips[i-2] = args[i];
+                        IPAddress? _address;
+                        if (!IPAddress.TryParse(args[i], out _address))
+                        {
+                                Console.WriteLine($"ERROR: Remote player {i}'s IPv6 {args[i]} is invalid");
+                                return 1;
+                        }
+                        remote_player_ips[i - 2] = _address;
                 }
 
                 player_inputs_packet_data[0] = (uint)PacketType.SYNC_INPUTS;
@@ -101,6 +108,12 @@ public static class BackdashDaemon
                         })
                         .Build();
 
+                session.AddPlayer(NetcodePlayer.CreateLocal());
+                for (int i = 1; i < player_count; i++)
+                {
+                        session.AddPlayer(NetcodePlayer.CreateRemote(remote_player_ips[i], port));
+                }
+
                 Event netEvent;
                 while (true)
                 {
@@ -109,7 +122,7 @@ public static class BackdashDaemon
                                 switch (netEvent.Type)
                                 {
                                         case EventType.Connect:
-                                                // TODO: Start Backdash connection
+                                                session.Start();
                                                 break;
 
                                         case EventType.Receive:
