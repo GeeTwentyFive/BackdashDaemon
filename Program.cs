@@ -52,10 +52,10 @@ public static class BackdashDaemon
                 // IN = (^ response) game state data
 
                 LOCAL_INPUT = 3,
-                // [DONE] IN = local player input data
+                // [DONE] IN = uint32 local player input data
 
                 SYNC_INPUTS = 4,
-                // OUT = synchronized input data (for *all* players)
+                // OUT = uint32[] synchronized input data (for *all* players)
 
                 FRAME_BEGIN = 5
                 // [DONE] IN = backdash begin frame
@@ -64,7 +64,7 @@ public static class BackdashDaemon
 
         static int player_count = 0;
         static IPAddress[] remote_player_ips = new IPAddress[MAX_PLAYERS];
-        static uint[] player_inputs_packet_data = new uint[MAX_PLAYERS];
+        static uint[] player_inputs_packet_data = new uint[MAX_PLAYERS+1];
 
         static Host server = new Host();
         static Packet tick_request_packet = default(Packet);
@@ -105,9 +105,11 @@ public static class BackdashDaemon
                         return 1;
                 }
 
-                //var ginputs = session.CurrentSynchronizedInputs;
-
-                //player_inputs_packet_data[1..] = 4;
+                for (int i = 1; i < player_count+1; i++)
+                {
+                        player_inputs_packet_data[i] = session.CurrentSynchronizedInputs[i].Input;
+                }
+                // TODO: ^ SEND
 
                 return 0;
         }
