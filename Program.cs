@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 public static class BackdashDaemon
 {
         const int LOCAL_PLAYER_ID = 0;
+        const int MAX_PLAYERS = 4;
 
 
         public enum PacketType
@@ -28,8 +29,8 @@ public static class BackdashDaemon
 
 
         static int player_count = 0;
-        static string[] remote_player_ips = { };
-        static List<List<byte>> player_inputs = new List<List<byte>>();
+        static string[] remote_player_ips = new string[MAX_PLAYERS];
+        static List<byte[]> player_inputs = new List<byte[]>();
         static List<byte> player_inputs_packet_data = new List<byte>();
 
         static Host server = new Host();
@@ -38,7 +39,12 @@ public static class BackdashDaemon
 
         public static void HandleReceive(byte[] data)
         {
-                // TODO
+                switch(data[0])
+                {
+                        case (byte)PacketType.LOCAL_INPUT:
+                                player_inputs[LOCAL_PLAYER_ID] = data;
+                                break;
+                }
         }
 
         public static int Main(string[] args)
@@ -57,6 +63,11 @@ public static class BackdashDaemon
                 }
 
                 player_count = args.Length - 2 + 1; // the "+ 1" is local player
+                if (player_count > MAX_PLAYERS)
+                {
+                        Console.WriteLine($"ERROR: Number of players exceeds max {MAX_PLAYERS}");
+                        return 1;
+                }
 
                 for (int i = 2; i < player_count; i++)
                 {
@@ -65,7 +76,7 @@ public static class BackdashDaemon
 
                 while (player_inputs.Count < player_count)
                 {
-                        player_inputs.Add(new List<byte>());
+                        player_inputs.Add(new byte[0]);
                 }
 
                 player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
@@ -85,7 +96,7 @@ public static class BackdashDaemon
                                 switch (netEvent.Type)
                                 {
                                         case EventType.Connect:
-                                                // TODO: Start GGPO connection
+                                                // TODO: Start Backdash connection
                                                 break;
 
                                         case EventType.Receive:
