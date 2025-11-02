@@ -6,6 +6,7 @@ using Microsoft.VisualBasic;
 using System.Net;
 using Backdash.Serialization;
 using Backdash.Data;
+using System.Buffers.Binary;
 
 
 public class BackdashSessionHandler : INetcodeSessionHandler
@@ -19,7 +20,10 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                 }
 
                 Packet tick_request_packet = default(Packet);
-                tick_request_packet.Create(new byte[] { (byte)BackdashDaemon.PacketType.TICK });
+                tick_request_packet.Create(
+                        new byte[] { (byte)BackdashDaemon.PacketType.TICK },
+                        PacketFlags.Reliable
+                );
                 BackdashDaemon.server.Broadcast(0, ref tick_request_packet);
         }
 
@@ -30,14 +34,20 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                 load_game_request_packet_data[0] = (byte)BackdashDaemon.PacketType.LOAD_GAME;
                 Array.Copy(game_state_data, 0, load_game_request_packet_data, 1, game_state_data.Length);
                 Packet load_game_request_packet = default(Packet);
-                load_game_request_packet.Create(load_game_request_packet_data);
+                load_game_request_packet.Create(
+                        load_game_request_packet_data,
+                        PacketFlags.Reliable
+                );
                 BackdashDaemon.server.Broadcast(0, ref load_game_request_packet);
         }
 
         public void SaveState(in Frame frame, ref readonly BinaryBufferWriter writer)
         {
                 Packet save_game_request_packet = default(Packet);
-                save_game_request_packet.Create(new byte[] { (byte)BackdashDaemon.PacketType.SAVE_GAME });
+                save_game_request_packet.Create(
+                        new byte[] { (byte)BackdashDaemon.PacketType.SAVE_GAME },
+                        PacketFlags.Reliable
+                );
                 BackdashDaemon.server.Broadcast(0, ref save_game_request_packet);
 
                 // TODO: ^ wait for reply then write via writer.Write()
@@ -98,7 +108,7 @@ public static class BackdashDaemon
 
                         case (byte)PacketType.LOCAL_INPUT:
                                 if (session == null) break;
-                                session.AddLocalInput(local_player, BitConverter.ToUInt32(data, 1));
+                                session.AddLocalInput(local_player, BinaryPrimitives.ReadUInt32LittleEndian(data.AsSpan(1)));
                                 break;
 
                         case (byte)PacketType.TICK:
@@ -121,16 +131,16 @@ public static class BackdashDaemon
 
                 for (int i = 1; i < player_count + 1; i++)
                 {
-                        Array.Copy(
-                                BitConverter.GetBytes(session.CurrentSynchronizedInputs[i].Input),
-                                0,
-                                player_inputs_packet_data,
-                                1 + (i-1)*sizeof(uint),
-                                sizeof(uint)
+                        BinaryPrimitives.WriteUInt32LittleEndian(
+                                player_inputs_packet_data.AsSpan(1 + (i - 1) * sizeof(uint)),
+                                session.CurrentSynchronizedInputs[i].Input
                         );
                 }
                 Packet player_inputs_packet = default(Packet);
-                player_inputs_packet.Create(player_inputs_packet_data);
+                player_inputs_packet.Create(
+                        player_inputs_packet_data,
+                        PacketFlags.Reliable
+                );
                 server.Broadcast(0, ref player_inputs_packet);
 
                 return 0;
@@ -158,7 +168,7 @@ public static class BackdashDaemon
                         return 1;
                 }
 
-                for (int i = 2; i < player_count; i++)
+                for (int i = 2; i < args.Length; i++)
                 {
                         IPAddress? _address;
                         if (!IPAddress.TryParse(args[i], out _address))
@@ -198,7 +208,7 @@ public static class BackdashDaemon
                 session.AddPlayer(local_player);
                 for (int i = 1; i < player_count; i++)
                 {
-                        session.AddPlayer(NetcodePlayer.CreateRemote(remote_player_ips[i], port));
+                        session.AddPlayer(NetcodePlayer.CreateRemote(remote_player_ips[i-1], port));
                 }
 
                 Event netEvent;
