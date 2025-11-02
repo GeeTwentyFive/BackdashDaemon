@@ -74,9 +74,24 @@ public static class BackdashDaemon
                 Event netEvent;
                 while (true)
                 {
-                        //
-                }
+                        while (server.Service(0, out netEvent) > 0)
+                        {
+                                switch (netEvent.Type)
+                                {
+                                        case EventType.Connect:
+                                                // TODO: Start GGPO connection
+                                                break;
 
-                return 0;
+                                        case EventType.Receive:
+                                                // TODO
+                                                break;
+
+                                        case EventType.Disconnect:
+                                                return 0;
+                                }
+                        }
+
+                        server.Flush();
+                }
         }
 }
