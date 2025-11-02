@@ -16,3 +16,10 @@
 /home/gee/Projects/BackdashDaemon/obj/Debug/net8.0/BackdashDaemon.pdb
 /home/gee/Projects/BackdashDaemon/obj/Debug/net8.0/BackdashDaemon.genruntimeconfig.cache
 /home/gee/Projects/BackdashDaemon/obj/Debug/net8.0/ref/BackdashDaemon.dll
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/enet.dll
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/enet.dylib
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/libenet.so
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/ENet-CSharp.dll
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/runtimes/linux/native/libenet.so
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/runtimes/osx/native/libenet.dylib
+/home/gee/Projects/BackdashDaemon/bin/Debug/net8.0/runtimes/win/native/enet.dll
