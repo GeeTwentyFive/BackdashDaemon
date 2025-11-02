@@ -43,6 +43,7 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 
         public void SaveState(in Frame frame, ref readonly BinaryBufferWriter writer)
         {
+                // Send request for game state
                 Packet save_game_request_packet = default(Packet);
                 save_game_request_packet.Create(
                         new byte[] { (byte)BackdashDaemon.PacketType.SAVE_GAME },
@@ -50,7 +51,37 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                 );
                 BackdashDaemon.server.Broadcast(0, ref save_game_request_packet);
 
-                // TODO: ^ wait for reply then write via writer.Write()
+                // Wait for receive (partial copy of main loop)
+                Event netEvent;
+                while (BackdashDaemon.server.Service(0, out netEvent) > 0)
+                {
+                        switch (netEvent.Type)
+                        {
+                                case EventType.Receive:
+                                        byte[] packet_data = new byte[netEvent.Packet.Length];
+                                        netEvent.Packet.CopyTo(packet_data);
+                                        if (packet_data[0] == (byte)BackdashDaemon.PacketType.SAVE_GAME)
+                                        {
+                                                writer.Write(packet_data);
+                                                return;
+                                        }
+                                        else BackdashDaemon.HandleReceive(packet_data);
+                                        break;
+
+                                case EventType.Disconnect:
+                                        BackdashDaemon.server.Dispose();
+                                        Environment.Exit(0);
+                                        break;
+                        }
+                }
+
+                if (BackdashDaemon.SynchronizeInputs() != 0)
+                {
+                        Console.WriteLine("ERROR: Failed to synchronize inputs");
+                        Environment.Exit(1);
+                }
+
+                BackdashDaemon.server.Flush();
         }
 
         public void TimeSync(FrameSpan framesAhead) {}
@@ -67,24 +98,24 @@ public static class BackdashDaemon
         public enum PacketType
         {
                 TICK = 0,
-                // [DONE] OUT = synchronize inputs -> tick request
-                // [DONE] IN = backdash advance frame
+                // OUT = synchronize inputs -> tick request
+                // IN = backdash advance frame
 
                 LOAD_GAME = 1,
-                // [DONE] OUT = load game state request + data
+                // OUT = load game state request + data
 
                 SAVE_GAME = 2,
-                // [DONE] OUT = save game request
+                // OUT = save game request
                 // IN = (^ response) game state data
 
                 LOCAL_INPUT = 3,
-                // [DONE] IN = uint32 local player input data
+                // IN = uint32 local player input data
 
                 SYNC_INPUTS = 4,
-                // [DONE] OUT = uint32[] synchronized input data (for *all* players)
+                // OUT = uint32[] synchronized input data (for *all* players)
 
                 FRAME_BEGIN = 5
-                // [DONE] IN = backdash begin frame
+                // IN = backdash begin frame
         }
 
 
@@ -94,7 +125,7 @@ public static class BackdashDaemon
 
         public static Host server = new Host();
 
-        static INetcodeSession<uint>? session;
+        public static INetcodeSession<uint>? session;
         static NetcodePlayer local_player = NetcodePlayer.CreateLocal();
 
         public static void HandleReceive(byte[] data)
