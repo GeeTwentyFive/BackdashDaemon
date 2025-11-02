@@ -4,7 +4,31 @@ using System.Net.Security;
 using System.Runtime.InteropServices;
 using Microsoft.VisualBasic;
 using System.Net;
+using Backdash.Serialization;
 
+
+public class BackdashSessionHandler : INetcodeSessionHandler
+{
+        public void AdvanceFrame()
+        {
+                // TODO: Send request ^
+        }
+
+        public void LoadState(in Frame frame, ref readonly BinaryBufferReader reader)
+        {
+                // TODO: Send request ^
+        }
+
+        public void SaveState(in Frame frame, ref readonly BinaryBufferWriter writer)
+        {
+                // TODO: Send request ^
+        }
+
+        public void TimeSync(FrameSpan framesAhead) {}
+        public void OnSessionStart() {}
+        public void OnSessionClose() {}
+        public void OnPeerEvent(NetcodePlayer player, PeerEventInfo evt) { }
+}
 
 public static class BackdashDaemon
 {
@@ -41,7 +65,7 @@ public static class BackdashDaemon
 
         public static void HandleReceive(byte[] data)
         {
-                switch(data[0])
+                switch (data[0])
                 {
                         case (byte)PacketType.LOCAL_INPUT:
                                 player_inputs[LOCAL_PLAYER_ID] = data[1..];
@@ -92,7 +116,7 @@ public static class BackdashDaemon
                 save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
 
                 Address address = new Address();
-                address.Port = (ushort)(port+1);
+                address.Port = (ushort)(port + 1);
                 server.Create(address, 1);
 
                 var session = RollbackNetcode

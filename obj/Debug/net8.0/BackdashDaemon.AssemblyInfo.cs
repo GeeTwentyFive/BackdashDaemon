@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BackdashDaemon")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+53bb034d80cbb834ef06fe898514ddd250808b34")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+809bc45ce363e86bac606c4bec176babd0442088")]
 [assembly: System.Reflection.AssemblyProductAttribute("BackdashDaemon")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BackdashDaemon")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
