@@ -44,6 +44,10 @@ public static class BackdashDaemon
                         case (byte)PacketType.LOCAL_INPUT:
                                 player_inputs[LOCAL_PLAYER_ID] = data;
                                 break;
+
+                        case (byte)PacketType.TICK:
+                                // TODO: Advance frame
+                                break;
                 }
         }
 
