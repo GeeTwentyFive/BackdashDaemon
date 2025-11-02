@@ -36,8 +36,11 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 
         public void SaveState(in Frame frame, ref readonly BinaryBufferWriter writer)
         {
-                // TODO: Send request ^
-                // save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
+                Packet save_game_request_packet = default(Packet);
+                save_game_request_packet.Create(new byte[] { (byte)BackdashDaemon.PacketType.SAVE_GAME });
+                BackdashDaemon.server.Broadcast(0, ref save_game_request_packet);
+
+                // TODO: ^ wait for reply then write via writer.Write()
         }
 
         public void TimeSync(FrameSpan framesAhead) {}
@@ -61,7 +64,7 @@ public static class BackdashDaemon
                 // [DONE] OUT = load game state request + data
 
                 SAVE_GAME = 2,
-                // OUT = save game request
+                // [DONE] OUT = save game request
                 // IN = (^ response) game state data
 
                 LOCAL_INPUT = 3,
