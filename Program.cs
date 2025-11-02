@@ -16,8 +16,6 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                 if (BackdashDaemon.SynchronizeInputs() != 0)
                 {
                         Console.WriteLine("ERROR: Failed to synchronize inputs");
-                        BackdashDaemon.server.Dispose();
-                        Environment.Exit(1);
                 }
 
                 Packet tick_request_packet = default(Packet);
@@ -81,8 +79,6 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                         if (BackdashDaemon.SynchronizeInputs() != 0)
                         {
                                 Console.WriteLine("ERROR: Failed to synchronize inputs");
-                                BackdashDaemon.server.Dispose();
-                                Environment.Exit(1);
                         }
 
                         BackdashDaemon.server.Flush();
@@ -184,27 +180,27 @@ public static class BackdashDaemon
 
         public static int Main(string[] args)
         {
-                if (args.Length < 3)
+                if (args.Length < 2)
                 {
                         Console.WriteLine("USAGE: BackdashDaemon <PORT> <REMOTE_PLAYER_2_IPv6> [REMOTE_PLAYER_3_IPv6] [REMOTE_PLAYER_4_IPv6]");
                         return 1;
                 }
 
                 ushort port;
-                if (!ushort.TryParse(args[1], out port))
+                if (!ushort.TryParse(args[0], out port))
                 {
-                        Console.WriteLine($"ERROR: Provided port {args[1]} is invalid");
+                        Console.WriteLine($"ERROR: Provided port {args[0]} is invalid");
                         return 1;
                 }
 
-                player_count = args.Length - 2 + 1; // the "+ 1" is local player
+                player_count = args.Length - 1 + 1; // the "+ 1" is local player
                 if (player_count > MAX_PLAYERS)
                 {
                         Console.WriteLine($"ERROR: Number of players exceeds max {MAX_PLAYERS}");
                         return 1;
                 }
 
-                for (int i = 2; i < args.Length; i++)
+                for (int i = 1; i < args.Length; i++)
                 {
                         IPAddress? _address;
                         if (!IPAddress.TryParse(args[i], out _address))
@@ -212,7 +208,7 @@ public static class BackdashDaemon
                                 Console.WriteLine($"ERROR: Remote player {i}'s IPv6 {args[i]} is invalid");
                                 return 1;
                         }
-                        remote_player_ips[i - 2] = _address;
+                        remote_player_ips[i - 1] = _address;
                 }
 
                 player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
@@ -274,7 +270,6 @@ public static class BackdashDaemon
                         if (SynchronizeInputs() != 0)
                         {
                                 Console.WriteLine("ERROR: Failed to synchronize inputs");
-                                return 1;
                         }
 
                         server.Flush();
