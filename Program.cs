@@ -13,10 +13,7 @@ public class BackdashSessionHandler : INetcodeSessionHandler
 {
         public void AdvanceFrame()
         {
-                if (BackdashDaemon.SynchronizeInputs() != 0)
-                {
-                        Console.WriteLine("ERROR: Failed to synchronize inputs");
-                }
+                BackdashDaemon.SynchronizeInputs();
 
                 Packet tick_request_packet = default(Packet);
                 tick_request_packet.Create(
@@ -76,10 +73,7 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                                 }
                         }
 
-                        if (BackdashDaemon.SynchronizeInputs() != 0)
-                        {
-                                Console.WriteLine("ERROR: Failed to synchronize inputs");
-                        }
+                        BackdashDaemon.SynchronizeInputs();
 
                         BackdashDaemon.server.Flush();
                 }
@@ -267,10 +261,7 @@ public static class BackdashDaemon
                                 }
                         }
 
-                        if (SynchronizeInputs() != 0)
-                        {
-                                Console.WriteLine("ERROR: Failed to synchronize inputs");
-                        }
+                        SynchronizeInputs();
 
                         server.Flush();
                 }
