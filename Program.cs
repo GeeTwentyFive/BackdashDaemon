@@ -40,17 +40,24 @@ public static class BackdashDaemon
         {
                 TICK = 0,
                 // OUT = synchronize inputs -> tick request
-                // IN = backdash advance frame
+                // [DONE] IN = backdash advance frame
+
                 LOAD_GAME = 1,
                 // OUT = load game state request + data
                 // IN = ^ confirmation
+
                 SAVE_GAME = 2,
                 // OUT = save game request
                 // IN = (^ response) game state data
+
                 LOCAL_INPUT = 3,
-                // IN = local player input data
-                SYNC_INPUTS = 4
+                // [DONE] IN = local player input data
+
+                SYNC_INPUTS = 4,
                 // OUT = synchronized input data (for *all* players)
+
+                FRAME_BEGIN = 5
+                // [DONE] IN = backdash begin frame
         }
 
 
@@ -63,16 +70,24 @@ public static class BackdashDaemon
         static Packet tick_request_packet = default(Packet);
         static Packet save_game_request_packet = default(Packet);
 
+        static INetcodeSession<uint>? session;
+
         public static void HandleReceive(byte[] data)
         {
                 switch (data[0])
                 {
+                        case (byte)PacketType.FRAME_BEGIN:
+                                if (session == null) break;
+                                session.BeginFrame();
+                                break;
+
                         case (byte)PacketType.LOCAL_INPUT:
                                 player_inputs[LOCAL_PLAYER_ID] = data[1..];
                                 break;
 
                         case (byte)PacketType.TICK:
-                                // TODO: Advance frame
+                                if (session == null) break;
+                                session.AdvanceFrame();
                                 break;
                 }
         }
@@ -119,7 +134,7 @@ public static class BackdashDaemon
                 address.Port = (ushort)(port + 1);
                 server.Create(address, 1);
 
-                var session = RollbackNetcode
+                session = RollbackNetcode
                         .WithInputType(t => t.Integer<uint>())
                         .Configure(options =>
                         {
@@ -131,6 +146,11 @@ public static class BackdashDaemon
                                 options.UseIPv6 = true;
                         })
                         .Build();
+                if (session == null)
+                {
+                        Console.WriteLine("ERROR: Failed to create RollbackNetcode session");
+                        return 1;
+                }
 
                 session.SetHandler(new BackdashSessionHandler());
 
