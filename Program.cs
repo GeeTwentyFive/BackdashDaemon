@@ -2,6 +2,7 @@
 using Backdash;
 using System.Net.Security;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
 
 
 public static class BackdashDaemon
@@ -31,7 +32,7 @@ public static class BackdashDaemon
         static int player_count = 0;
         static string[] remote_player_ips = new string[MAX_PLAYERS];
         static byte[][] player_inputs = new byte[MAX_PLAYERS][];
-        static List<byte> player_inputs_packet_data = new List<byte>();
+        static uint[] player_inputs_packet_data = new uint[MAX_PLAYERS];
 
         static Host server = new Host();
         static Packet tick_request_packet = default(Packet);
@@ -55,7 +56,7 @@ public static class BackdashDaemon
         {
                 if (args.Length < 3)
                 {
-                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <REMOTE_PLAYER_2_IP> [REMOTE_PLAYER_3_IP] [REMOTE_PLAYER_4_IP]");
+                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <PLAYER_INPUT_STRUCTURE_SIZE> <REMOTE_PLAYER_2_IP> [REMOTE_PLAYER_3_IP] [REMOTE_PLAYER_4_IP]");
                         return 1;
                 }
 
@@ -78,7 +79,7 @@ public static class BackdashDaemon
                         remote_player_ips[i-2] = args[i];
                 }
 
-                player_inputs_packet_data.Add((byte)PacketType.SYNC_INPUTS);
+                player_inputs_packet_data[0] = (uint)PacketType.SYNC_INPUTS;
 
                 tick_request_packet.Create(new byte[] { (byte)PacketType.TICK });
                 save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
@@ -86,6 +87,19 @@ public static class BackdashDaemon
                 Address address = new Address();
                 address.Port = (ushort)(port+1);
                 server.Create(address, 1);
+
+                var session = RollbackNetcode
+                        .WithInputType(t => t.Integer<uint>())
+                        .Configure(options =>
+                        {
+                                options.InputDelayFrames = 0;
+                                options.InputQueueLength = 512;
+                                options.LocalPort = port;
+                                options.NumberOfPlayers = player_count;
+                                options.RollbackFramesSmoothFactor = 0.0f;
+                                options.UseIPv6 = true;
+                        })
+                        .Build();
 
                 Event netEvent;
                 while (true)
