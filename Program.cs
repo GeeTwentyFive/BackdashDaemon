@@ -119,6 +119,7 @@ public static class BackdashDaemon
         static byte[] player_inputs_packet_data = new byte[1 + sizeof(uint)*MAX_PLAYERS];
 
         public static Host server = new Host();
+        public static bool local_player_connected = false;
 
         public static INetcodeSession<uint>? session;
         static NetcodePlayer local_player = NetcodePlayer.CreateLocal();
@@ -261,7 +262,7 @@ public static class BackdashDaemon
                                 }
                         }
 
-                        SynchronizeInputs();
+                        if (local_player_connected) SynchronizeInputs();
 
                         server.Flush();
                 }
