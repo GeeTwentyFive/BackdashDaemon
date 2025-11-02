@@ -16,6 +16,7 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                 if (BackdashDaemon.SynchronizeInputs() != 0)
                 {
                         Console.WriteLine("ERROR: Failed to synchronize inputs");
+                        BackdashDaemon.server.Dispose();
                         Environment.Exit(1);
                 }
 
@@ -78,6 +79,7 @@ public class BackdashSessionHandler : INetcodeSessionHandler
                 if (BackdashDaemon.SynchronizeInputs() != 0)
                 {
                         Console.WriteLine("ERROR: Failed to synchronize inputs");
+                        BackdashDaemon.server.Dispose();
                         Environment.Exit(1);
                 }
 
