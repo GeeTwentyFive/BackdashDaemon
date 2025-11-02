@@ -42,7 +42,7 @@ public static class BackdashDaemon
                 switch(data[0])
                 {
                         case (byte)PacketType.LOCAL_INPUT:
-                                player_inputs[LOCAL_PLAYER_ID] = data;
+                                player_inputs[LOCAL_PLAYER_ID] = data[1..];
                                 break;
 
                         case (byte)PacketType.TICK:
@@ -75,10 +75,10 @@ public static class BackdashDaemon
 
                 for (int i = 2; i < player_count; i++)
                 {
-                        remote_player_ips.Append(args[i]);
+                        remote_player_ips[i-2] = args[i];
                 }
 
-                player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
+                player_inputs_packet_data.Add((byte)PacketType.SYNC_INPUTS);
 
                 tick_request_packet.Create(new byte[] { (byte)PacketType.TICK });
                 save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
