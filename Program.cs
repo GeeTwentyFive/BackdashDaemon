@@ -30,7 +30,7 @@ public static class BackdashDaemon
 
         static int player_count = 0;
         static string[] remote_player_ips = new string[MAX_PLAYERS];
-        static List<byte[]> player_inputs = new List<byte[]>();
+        static byte[][] player_inputs = new byte[MAX_PLAYERS][];
         static List<byte> player_inputs_packet_data = new List<byte>();
 
         static Host server = new Host();
@@ -72,11 +72,6 @@ public static class BackdashDaemon
                 for (int i = 2; i < player_count; i++)
                 {
                         remote_player_ips.Append(args[i]);
-                }
-
-                while (player_inputs.Count < player_count)
-                {
-                        player_inputs.Add(new byte[0]);
                 }
 
                 player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
