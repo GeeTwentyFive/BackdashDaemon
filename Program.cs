@@ -64,7 +64,7 @@ public static class BackdashDaemon
 
         static int player_count = 0;
         static IPAddress[] remote_player_ips = new IPAddress[MAX_PLAYERS];
-        static uint[] player_inputs_packet_data = new uint[MAX_PLAYERS+1];
+        static byte[] player_inputs_packet_data = new byte[1 + sizeof(uint)*MAX_PLAYERS];
 
         static Host server = new Host();
         static Packet tick_request_packet = default(Packet);
@@ -105,11 +105,19 @@ public static class BackdashDaemon
                         return 1;
                 }
 
-                for (int i = 1; i < player_count+1; i++)
+                for (int i = 1; i < player_count + 1; i++)
                 {
-                        player_inputs_packet_data[i] = session.CurrentSynchronizedInputs[i].Input;
+                        Array.Copy(
+                                BitConverter.GetBytes(session.CurrentSynchronizedInputs[i].Input),
+                                0,
+                                player_inputs_packet_data,
+                                1 + (i-1)*sizeof(uint),
+                                sizeof(uint)
+                        );
                 }
-                // TODO: ^ SEND
+                Packet player_inputs_packet = default(Packet);
+                player_inputs_packet.Create(player_inputs_packet_data);
+                server.Broadcast(0, ref player_inputs_packet);
 
                 return 0;
         }
@@ -147,7 +155,7 @@ public static class BackdashDaemon
                         remote_player_ips[i - 2] = _address;
                 }
 
-                player_inputs_packet_data[0] = (uint)PacketType.SYNC_INPUTS;
+                player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
 
                 tick_request_packet.Create(new byte[] { (byte)PacketType.TICK });
                 save_game_request_packet.Create(new byte[] { (byte)PacketType.SAVE_GAME });
