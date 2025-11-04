@@ -8,7 +8,7 @@ BackdashDaemon implements the Backdash rollback netcode library as an IPC (Inter
 
 
 # USAGE
-1) Implement the following in UDP:
+1) Implement the following in ENet:
 - `PacketType.TICK` (0):
   - Input (bytes): [0] ^ packet type
   - Advance physics simulation by 1 tick
