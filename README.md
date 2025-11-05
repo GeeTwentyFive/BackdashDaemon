@@ -26,4 +26,4 @@ BackdashDaemon implements the Backdash rollback netcode library as an IPC (Inter
 - `PacketType.FRAME_BEGIN` (5):
   - At the beginning of every frame: Send a `PacketType.FRAME_BEGIN`-type packet [0]
 2) Pre-gather a lobby of users
-3) Call `BackdashDaemon <PORT> <REMOTE_PLAYER_2_IP> [REMOTE_PLAYER_3_IP] [REMOTE_PLAYER_4_IP]`
+3) Call `BackdashDaemon <LOCAL_IPC_PORT> <REMOTE_PORT> <REMOTE_PLAYER_2_IP> [REMOTE_PLAYER_3_IP] [REMOTE_PLAYER_4_IP]`
