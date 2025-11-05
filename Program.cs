@@ -175,27 +175,34 @@ public static class BackdashDaemon
 
         public static int Main(string[] args)
         {
-                if (args.Length < 2)
+                if (args.Length < 3)
                 {
-                        Console.WriteLine("USAGE: BackdashDaemon <PORT> <REMOTE_PLAYER_2_IPv6> [REMOTE_PLAYER_3_IPv6] [REMOTE_PLAYER_4_IPv6]");
+                        Console.WriteLine("USAGE: BackdashDaemon <LOCAL_IPC_PORT> <REMOTE_PORT> <REMOTE_PLAYER_2_IPv6> [REMOTE_PLAYER_3_IPv6] [REMOTE_PLAYER_4_IPv6]");
                         return 1;
                 }
 
-                ushort port;
-                if (!ushort.TryParse(args[0], out port))
+                ushort local_ipc_port;
+                if (!ushort.TryParse(args[0], out local_ipc_port))
                 {
-                        Console.WriteLine($"ERROR: Provided port {args[0]} is invalid");
+                        Console.WriteLine($"ERROR: Provided local IPC port {args[0]} is invalid");
                         return 1;
                 }
 
-                player_count = args.Length - 1 + 1; // the "+ 1" is local player
+                ushort remote_port;
+                if (!ushort.TryParse(args[1], out remote_port))
+                {
+                        Console.WriteLine($"ERROR: Provided remote port {args[1]} is invalid");
+                        return 1;
+                }
+
+                player_count = args.Length - 2 + 1; // the "+ 1" is local player
                 if (player_count > MAX_PLAYERS)
                 {
                         Console.WriteLine($"ERROR: Number of players exceeds max {MAX_PLAYERS}");
                         return 1;
                 }
 
-                for (int i = 1; i < args.Length; i++)
+                for (int i = 2; i < args.Length; i++)
                 {
                         IPAddress? _address;
                         if (!IPAddress.TryParse(args[i], out _address))
@@ -209,7 +216,7 @@ public static class BackdashDaemon
                 player_inputs_packet_data[0] = (byte)PacketType.SYNC_INPUTS;
 
                 Address address = new Address();
-                address.Port = (ushort)(port + 1);
+                address.Port = local_ipc_port;
                 server.Create(address, 1);
 
                 session = RollbackNetcode
@@ -218,7 +225,7 @@ public static class BackdashDaemon
                         {
                                 options.InputDelayFrames = 0;
                                 options.InputQueueLength = 512;
-                                options.LocalPort = port;
+                                options.LocalPort = remote_port;
                                 options.NumberOfPlayers = player_count;
                                 options.RollbackFramesSmoothFactor = 0.0f;
                                 options.UseIPv6 = true;
@@ -235,7 +242,7 @@ public static class BackdashDaemon
                 session.AddPlayer(local_player);
                 for (int i = 1; i < player_count; i++)
                 {
-                        session.AddPlayer(NetcodePlayer.CreateRemote(remote_player_ips[i-1], port));
+                        session.AddPlayer(NetcodePlayer.CreateRemote(remote_player_ips[i-1], remote_port));
                 }
 
                 Event netEvent;
